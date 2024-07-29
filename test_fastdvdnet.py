@@ -98,9 +98,10 @@ def test_fastdvdnet(**args):
 		seq_time = time.time()
 
 		# Add noise
-		noise = torch.empty_like(seq).normal_(mean=0, std=args['noise_sigma']).to(device)
-		seqn = seq + noise
-		noisestd = torch.FloatTensor([args['noise_sigma']]).to(device)
+		# noise = torch.empty_like(seq).normal_(mean=0, std=args['noise_sigma']).to(device)
+		# seqn = seq + noise
+		seqn = seq
+		noisestd = torch.FloatTensor(0).to(device)
 
 		denframes = denoise_seq_fastdvdnet(seq=seqn,\
 										noise_std=noisestd,\
@@ -123,7 +124,7 @@ def test_fastdvdnet(**args):
 	if not args['dont_save_results']:
 		# Save sequence
 		save_out_seq(seqn, denframes, args['save_path'], \
-					   int(args['noise_sigma']*255), args['suffix'], args['save_noisy'])
+					   0, args['suffix'], False)
 
 	# close logger
 	close_logger(logger)
@@ -139,9 +140,9 @@ if __name__ == "__main__":
 	parser.add_argument("--suffix", type=str, default="", help='suffix to add to output name')
 	parser.add_argument("--max_num_fr_per_seq", type=int, default=25, \
 						help='max number of frames to load per sequence')
-	parser.add_argument("--noise_sigma", type=float, default=25, help='noise level used on test set')
+	# parser.add_argument("--noise_sigma", type=float, default=25, help='noise level used on test set')
 	parser.add_argument("--dont_save_results", action='store_true', help="don't save output images")
-	parser.add_argument("--save_noisy", action='store_true', help="save noisy frames")
+	# parser.add_argument("--save_noisy", action='store_true', help="save noisy frames")
 	parser.add_argument("--no_gpu", action='store_true', help="run model on CPU")
 	parser.add_argument("--save_path", type=str, default='./results', \
 						 help='where to save outputs as png')
@@ -150,7 +151,7 @@ if __name__ == "__main__":
 
 	argspar = parser.parse_args()
 	# Normalize noises ot [0, 1]
-	argspar.noise_sigma /= 255.
+	# argspar.noise_sigma /= 255.
 
 	# use CUDA?
 	argspar.cuda = not argspar.no_gpu and torch.cuda.is_available()
